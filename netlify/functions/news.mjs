@@ -79,3 +79,17 @@ async function aggregate() {
 export default async () => {
   try {
     const data = await aggregate();
+    return new Response(JSON.stringify(data), {
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "public, max-age=300",
+        "netlify-cdn-cache-control": "public, s-maxage=600, stale-while-revalidate=86400",
+      },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { "content-type": "application/json; charset=utf-8" },
+    });
+  }
+};
