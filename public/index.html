@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>香港晨讀 · Morning Dispatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#16241f; --paper:#eeeee5; --card:#f6f5ee;
+    --bauhinia:#c32b4e; --harbour:#2d6e6b; --mist:#7d847b;
+    --hair:rgba(22,36,31,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.65;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 72px}
+
+  .dawn{height:5px;width:100%;
+    background:linear-gradient(90deg,#2d6e6b 0%,#7a9a6b 26%,#e6b25a 55%,#c32b4e 100%);}
+
+  header{padding:30px 0 22px;border-bottom:2px solid var(--ink)}
+  .masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .brand .cn{font-family:"Noto Serif TC",serif;font-weight:900;
+    font-size:clamp(34px,6vw,52px);letter-spacing:.04em;line-height:1;margin:0}
+  .brand .en{font-family:"Fraunces",serif;font-weight:600;font-style:italic;
+    font-size:clamp(15px,2.4vw,20px);color:var(--harbour);margin-top:6px}
+  .dateblock{text-align:right;min-width:200px}
+  .dateblock .big{font-family:"Fraunces",serif;font-weight:900;
+    font-size:clamp(30px,5.5vw,46px);line-height:.95;letter-spacing:-.01em}
+  .dateblock .cn{font-family:"Noto Serif TC",serif;font-weight:700;font-size:16px;margin-top:4px}
+  .meta{margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--mist);letter-spacing:.02em}
+  .meta .tag{color:var(--ink)}
+  .refresh{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.04em;
+    background:none;border:1px solid var(--hair);color:var(--ink);
+    padding:7px 14px;border-radius:2px;cursor:pointer;transition:.18s}
+  .refresh:hover{border-color:var(--bauhinia);color:var(--bauhinia)}
+  .refresh:disabled{opacity:.45;cursor:wait}
+  .refresh:focus-visible{outline:2px solid var(--bauhinia);outline-offset:2px}
+
+  .status{padding:60px 8px;text-align:center;color:var(--mist);
+    font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.03em}
+  .status .dots::after{content:"";animation:dots 1.4s steps(4,end) infinite}
+  @keyframes dots{0%{content:""}25%{content:"·"}50%{content:"··"}75%{content:"···"}100%{content:""}}
+
+  .lead{padding:28px 0 26px;border-bottom:2px solid var(--ink)}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--harbour);display:inline-block;margin-bottom:10px}
+  .lead h2{font-family:"Noto Serif TC",serif;font-weight:900;
+    font-size:clamp(26px,3.8vw,40px);line-height:1.2;margin:0 0 12px;letter-spacing:.01em}
+  .lead h2 a:hover{color:var(--bauhinia)}
+  .lead .body{font-size:16.5px;color:#2c3a34;max-width:62ch}
+  .lead .src{margin-top:14px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--mist)}
+  .lead .src b{color:var(--bauhinia);font-weight:500}
+
+  .sections{padding-top:30px;display:grid;gap:32px 34px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .section .head{padding-bottom:8px;border-bottom:2px solid var(--ink);margin-bottom:2px}
+  .section .outlet{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--harbour);display:block;margin-bottom:3px}
+  .section h3{font-family:"Noto Serif TC",serif;font-weight:700;font-size:19px;margin:0;
+    display:flex;justify-content:space-between;align-items:baseline}
+  .section h3 .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mist);font-weight:400}
+  .row{padding:12px 0;border-bottom:1px solid var(--hair);display:block}
+  .row:last-child{border-bottom:none}
+  .row .t{font-size:15px;line-height:1.4;color:var(--ink);transition:.15s}
+  .row:hover .t{color:var(--bauhinia)}
+  .row .time{display:block;margin-top:5px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mist)}
+  .section .empty{padding:14px 0;color:var(--mist);font-family:"IBM Plex Mono",monospace;font-size:12px}
+
+  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--hair);
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--mist);line-height:1.8}
+  footer b{color:var(--ink);font-weight:500}
+
+  @media (max-width:520px){.dateblock{text-align:left}.masthead{align-items:flex-start}}
+  @media (prefers-reduced-motion:reduce){.status .dots::after{animation:none;content:"…"}}
+</style>
+</head>
+<body>
+<div class="dawn"></div>
+<div class="wrap">
+  <header>
+    <div class="masthead">
+      <div class="brand">
+        <h1 class="cn">香港晨讀</h1>
+        <div class="en">Morning Dispatch · 香港每日要聞</div>
+      </div>
+      <div class="dateblock">
+        <div class="big" id="dateBig">—</div>
+        <div class="cn" id="dateCn">　</div>
+      </div>
+    </div>
+    <div class="meta">
+      <span><span class="tag">香港</span> · <span id="updatedAt">載入中</span></span>
+      <button class="refresh" id="refreshBtn">重新整理</button>
+    </div>
+  </header>
+
+  <div id="content">
+    <div class="status"><div>正在載入各大傳媒即時新聞<span class="dots"></span></div></div>
+  </div>
+
+  <footer>
+    <div><b>香港晨讀</b> · 每日打開即顯示各大傳媒當日要聞</div>
+    <div>來源:香港電台 RTHK、明報(公開 RSS)· 時間為香港時間 · 點按標題前往原文</div>
+  </footer>
+</div>
+
+<script>
+  const HK = "Asia/Hong_Kong";
+  const MON_EN = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+  function fmtTime(dateStr){
+    const d=new Date(dateStr); if(isNaN(d)) return "";
+    const today=new Intl.DateTimeFormat("en-CA",{timeZone:HK}).format(new Date());
+    const that =new Intl.DateTimeFormat("en-CA",{timeZone:HK}).format(d);
+    const t=new Intl.DateTimeFormat("zh-HK",{timeZone:HK,hour:"2-digit",minute:"2-digit",hour12:false}).format(d);
+    if(today===that) return t;
+    const md=new Intl.DateTimeFormat("zh-HK",{timeZone:HK,month:"numeric",day:"numeric"}).format(d);
+    return `${md} ${t}`;
+  }
+  function paintDate(){
+    const p=new Intl.DateTimeFormat("en-CA",{timeZone:HK,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+    const g=t=>p.find(x=>x.type===t)?.value;
+    document.getElementById("dateBig").textContent=`${g("day")} ${MON_EN[parseInt(g("month"))-1]}`;
+    document.getElementById("dateCn").textContent=`${g("year")}年${parseInt(g("month"))}月${parseInt(g("day"))}日`;
+  }
+
+  function render(data){
+    const feeds=data.feeds||[];
+    const leadFeed=feeds.find(f=>f.lead && f.items.length);
+    const lead=leadFeed && leadFeed.items[0];
+    let leadHtml="";
+    if(lead){
+      const snip=lead.desc ? (lead.desc.length>96?lead.desc.slice(0,96)+"…":lead.desc):"";
+      leadHtml=`
+        <section class="lead">
+          <span class="eyebrow">頭條 · LEAD</span>
+          <h2><a href="${esc(lead.link)}" target="_blank" rel="noopener">${esc(lead.title)}</a></h2>
+          ${snip?`<div class="body">${esc(snip)}</div>`:""}
+          <div class="src">來源 · <b>${esc(leadFeed.outlet)}</b> · ${esc(fmtTime(lead.pub))}</div>
+        </section>`;
+    }
+    const cols=feeds.map(f=>{
+      const list=f.items.slice(f.lead?1:0);
+      const rows=list.length ? list.map(it=>`
+        <a class="row" href="${esc(it.link)}" target="_blank" rel="noopener">
+          <span class="t">${esc(it.title)}</span>
+          <span class="time">${esc(fmtTime(it.pub))}</span>
+        </a>`).join("")
+        : `<div class="empty">${f.ok?"暫無新聞":"暫時無法載入"}</div>`;
+      return `
+        <section class="section">
+          <div class="head">
+            <span class="outlet">${esc(f.outlet)}</span>
+            <h3>${esc(f.cat)}<span class="n">${list.length||""}</span></h3>
+          </div>
+          ${rows}
+        </section>`;
+    }).join("");
+    document.getElementById("content").innerHTML=leadHtml+`<div class="sections">${cols}</div>`;
+  }
+
+  async function load(){
+    const btn=document.getElementById("refreshBtn");
+    btn.disabled=true; btn.textContent="更新中…";
+    document.getElementById("content").innerHTML=
+      `<div class="status"><div>正在載入各大傳媒即時新聞<span class="dots"></span></div></div>`;
+    try{
+      const res=await fetch("/api/news",{cache:"no-store"});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const data=await res.json();
+      if(data.error) throw new Error(data.error);
+      render(data);
+      const upd=fmtTime(data.generatedAt);
+      const failed=(data.feeds||[]).filter(f=>!f.ok).length;
+      document.getElementById("updatedAt").textContent=`更新於 ${upd}${failed?` · ${failed} 個頻道未能載入`:""}`;
+    }catch(e){
+      document.getElementById("content").innerHTML=
+        `<div class="status"><div>暫時無法載入新聞。</div>
+         <button class="refresh" style="margin-top:18px" onclick="load()">再試一次</button></div>`;
+      document.getElementById("updatedAt").textContent="更新失敗";
+    }finally{
+      btn.disabled=false; btn.textContent="重新整理";
+    }
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", load);
+  paintDate();
+  load();
+</script>
+</body>
+</html>
