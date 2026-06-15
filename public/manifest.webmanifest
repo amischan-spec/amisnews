@@ -1,0 +1,16 @@
+{
+  "name": "香港晨讀 · Morning Dispatch",
+  "short_name": "香港晨讀",
+  "description": "香港每日要聞 · 各大傳媒即時新聞",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eeeee5",
+  "theme_color": "#16241f",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

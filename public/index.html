@@ -2,84 +2,166 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>香港晨讀 · Morning Dispatch</title>
+<meta name="description" content="香港每日要聞 · 各大傳媒即時新聞" />
+<meta name="theme-color" content="#eeeee5" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#13201c" media="(prefers-color-scheme: dark)" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet" />
+<script>
+  // 開頁即套用主題,避免閃白
+  (function(){ try{ var t=localStorage.getItem("theme"); if(t==="dark"||t==="light") document.documentElement.dataset.theme=t; }catch(e){} })();
+</script>
 <style>
   :root{
     --ink:#16241f; --paper:#eeeee5; --card:#f6f5ee;
     --bauhinia:#c32b4e; --harbour:#2d6e6b; --mist:#7d847b;
-    --hair:rgba(22,36,31,.14);
+    --text2:#2c3a34; --hair:rgba(22,36,31,.14);
   }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#e8eae4; --paper:#13201c; --card:#1a2723;
+      --bauhinia:#e35074; --harbour:#74b7b0; --mist:#93a09a;
+      --text2:#c2cac4; --hair:rgba(232,235,228,.15);
+    }
+  }
+  :root[data-theme="light"]{
+    --ink:#16241f; --paper:#eeeee5; --card:#f6f5ee;
+    --bauhinia:#c32b4e; --harbour:#2d6e6b; --mist:#7d847b;
+    --text2:#2c3a34; --hair:rgba(22,36,31,.14);
+  }
+  :root[data-theme="dark"]{
+    --ink:#e8eae4; --paper:#13201c; --card:#1a2723;
+    --bauhinia:#e35074; --harbour:#74b7b0; --mist:#93a09a;
+    --text2:#c2cac4; --hair:rgba(232,235,228,.15);
+  }
+
   *{box-sizing:border-box}
   html,body{margin:0}
+  html{scroll-behavior:smooth}
   body{background:var(--paper);color:var(--ink);
     font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.65;
-    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    transition:background .3s ease,color .3s ease;}
   a{color:inherit;text-decoration:none}
-  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 72px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 96px}
 
   .dawn{height:5px;width:100%;
     background:linear-gradient(90deg,#2d6e6b 0%,#7a9a6b 26%,#e6b25a 55%,#c32b4e 100%);}
 
-  header{padding:30px 0 22px;border-bottom:2px solid var(--ink)}
+  header{padding:28px 0 16px}
   .masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
   .brand .cn{font-family:"Noto Serif TC",serif;font-weight:900;
     font-size:clamp(34px,6vw,52px);letter-spacing:.04em;line-height:1;margin:0}
   .brand .en{font-family:"Fraunces",serif;font-weight:600;font-style:italic;
     font-size:clamp(15px,2.4vw,20px);color:var(--harbour);margin-top:6px}
-  .dateblock{text-align:right;min-width:200px}
+  .dateblock{text-align:right;min-width:180px}
   .dateblock .big{font-family:"Fraunces",serif;font-weight:900;
     font-size:clamp(30px,5.5vw,46px);line-height:.95;letter-spacing:-.01em}
   .dateblock .cn{font-family:"Noto Serif TC",serif;font-weight:700;font-size:16px;margin-top:4px}
-  .meta{margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  .dateblock .wx{margin-top:6px;font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--mist)}
+  .dateblock .wx b{color:var(--ink);font-weight:500}
+
+  .meta{margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    border-top:2px solid var(--ink);padding-top:12px;
     font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--mist);letter-spacing:.02em}
   .meta .tag{color:var(--ink)}
-  .refresh{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.04em;
+  .controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .search{position:relative}
+  .search input{font-family:"Noto Sans TC",sans-serif;font-size:13px;color:var(--ink);
+    background:var(--card);border:1px solid var(--hair);border-radius:18px;
+    padding:7px 14px 7px 30px;width:170px;transition:.18s;outline:none}
+  .search input:focus{border-color:var(--harbour);width:200px}
+  .search::before{content:"⌕";position:absolute;left:11px;top:50%;transform:translateY(-50%);
+    color:var(--mist);font-size:15px}
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.04em;
     background:none;border:1px solid var(--hair);color:var(--ink);
-    padding:7px 14px;border-radius:2px;cursor:pointer;transition:.18s}
-  .refresh:hover{border-color:var(--bauhinia);color:var(--bauhinia)}
-  .refresh:disabled{opacity:.45;cursor:wait}
-  .refresh:focus-visible{outline:2px solid var(--bauhinia);outline-offset:2px}
+    padding:7px 12px;border-radius:18px;cursor:pointer;transition:.18s;line-height:1}
+  .btn:hover{border-color:var(--bauhinia);color:var(--bauhinia)}
+  .btn:disabled{opacity:.45;cursor:wait}
+  .btn:focus-visible{outline:2px solid var(--bauhinia);outline-offset:2px}
+  .icon-btn{font-size:15px;padding:6px 11px}
 
-  .status{padding:60px 8px;text-align:center;color:var(--mist);
-    font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.03em}
-  .status .dots::after{content:"";animation:dots 1.4s steps(4,end) infinite}
-  @keyframes dots{0%{content:""}25%{content:"·"}50%{content:"··"}75%{content:"···"}100%{content:""}}
+  /* 分類導航(置頂) */
+  nav.cats{position:sticky;top:0;z-index:6;background:var(--paper);
+    border-bottom:1px solid var(--hair);margin:0 -22px;padding:9px 22px;
+    display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  nav.cats::-webkit-scrollbar{display:none}
+  nav.cats a{flex:none;font-family:"Noto Sans TC",sans-serif;font-size:13px;
+    color:var(--mist);border:1px solid var(--hair);border-radius:16px;padding:5px 13px;
+    white-space:nowrap;transition:.15s}
+  nav.cats a:hover{color:var(--bauhinia);border-color:var(--bauhinia)}
+  nav.cats[hidden]{display:none}
 
-  .lead{padding:28px 0 26px;border-bottom:2px solid var(--ink)}
+  .status{padding:30px 8px;text-align:center;color:var(--mist);
+    font-family:"IBM Plex Mono",monospace;font-size:14px}
+
+  .lead{padding:26px 0 24px;border-bottom:2px solid var(--ink);scroll-margin-top:64px}
   .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;
     text-transform:uppercase;color:var(--harbour);display:inline-block;margin-bottom:10px}
   .lead h2{font-family:"Noto Serif TC",serif;font-weight:900;
     font-size:clamp(26px,3.8vw,40px);line-height:1.2;margin:0 0 12px;letter-spacing:.01em}
   .lead h2 a:hover{color:var(--bauhinia)}
-  .lead .body{font-size:16.5px;color:#2c3a34;max-width:62ch}
+  .lead .body{font-size:16.5px;color:var(--text2);max-width:62ch}
   .lead .src{margin-top:14px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--mist)}
   .lead .src b{color:var(--bauhinia);font-weight:500}
 
-  .sections{padding-top:30px;display:grid;gap:32px 34px;
+  .sections{padding-top:26px;display:grid;gap:30px 34px;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .section{scroll-margin-top:64px}
+  .section[hidden]{display:none}
   .section .head{padding-bottom:8px;border-bottom:2px solid var(--ink);margin-bottom:2px}
   .section .outlet{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;
     text-transform:uppercase;color:var(--harbour);display:block;margin-bottom:3px}
   .section h3{font-family:"Noto Serif TC",serif;font-weight:700;font-size:19px;margin:0;
     display:flex;justify-content:space-between;align-items:baseline}
   .section h3 .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mist);font-weight:400}
-  .row{padding:12px 0;border-bottom:1px solid var(--hair);display:block}
+  .row{padding:12px 2px;border-bottom:1px solid var(--hair);display:block;
+    border-radius:6px;transition:background .15s,transform .15s,padding .15s}
   .row:last-child{border-bottom:none}
-  .row .t{font-size:15px;line-height:1.4;color:var(--ink);transition:.15s}
+  .row:hover{background:var(--card);transform:translateX(3px);padding-left:8px}
+  .row[hidden]{display:none}
+  .row .t{font-size:15px;line-height:1.4;color:var(--ink);transition:color .15s}
   .row:hover .t{color:var(--bauhinia)}
   .row .time{display:block;margin-top:5px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mist)}
   .section .empty{padding:14px 0;color:var(--mist);font-family:"IBM Plex Mono",monospace;font-size:12px}
 
-  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--hair);
+  /* 骨架載入 */
+  .sk{background:linear-gradient(90deg,var(--card) 0%,var(--hair) 50%,var(--card) 100%);
+    background-size:200% 100%;animation:sh 1.3s ease-in-out infinite;border-radius:5px}
+  @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .sk-line{height:13px;margin:9px 0}
+
+  /* 返回頂部 */
+  #top{position:fixed;right:20px;bottom:20px;z-index:9;width:42px;height:42px;border-radius:50%;
+    background:var(--ink);color:var(--paper);border:none;cursor:pointer;font-size:18px;line-height:1;
+    box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+  #top.show{opacity:1;pointer-events:auto}
+  #top:hover{transform:translateY(-3px)}
+
+  footer{margin-top:46px;padding-top:20px;border-top:1px solid var(--hair);
     font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--mist);line-height:1.8}
   footer b{color:var(--ink);font-weight:500}
 
-  @media (max-width:520px){.dateblock{text-align:left}.masthead{align-items:flex-start}}
-  @media (prefers-reduced-motion:reduce){.status .dots::after{animation:none;content:"…"}}
+  @media (max-width:560px){
+    .wrap{padding:0 16px 96px}
+    nav.cats{margin:0 -16px;padding:9px 16px}
+    .dateblock{text-align:left;min-width:0}
+    .masthead{align-items:flex-start}
+    .search input{width:130px}
+    .search input:focus{width:150px}
+    .sections{gap:26px 20px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .sk{animation:none}
+    *{transition:none!important}
+  }
 </style>
 </head>
 <body>
@@ -94,38 +176,56 @@
       <div class="dateblock">
         <div class="big" id="dateBig">—</div>
         <div class="cn" id="dateCn">　</div>
+        <div class="wx" id="wx"></div>
       </div>
     </div>
     <div class="meta">
       <span><span class="tag">香港</span> · <span id="updatedAt">載入中</span></span>
-      <button class="refresh" id="refreshBtn">重新整理</button>
+      <div class="controls">
+        <span class="search"><input id="q" type="search" placeholder="搜尋標題…" autocomplete="off" /></span>
+        <button class="btn icon-btn" id="themeBtn" title="切換深色／淺色" aria-label="切換主題">🌙</button>
+        <button class="btn" id="refreshBtn">重新整理</button>
+      </div>
     </div>
   </header>
 
+  <nav class="cats" id="nav" hidden></nav>
+
   <div id="content">
-    <div class="status"><div>正在載入各大傳媒即時新聞<span class="dots"></span></div></div>
+    <div class="status"><div id="skel"></div></div>
   </div>
 
   <footer>
     <div><b>香港晨讀</b> · 每日打開即顯示各大傳媒當日要聞</div>
-    <div>來源:香港電台 RTHK、明報(公開 RSS)· 時間為香港時間 · 點按標題前往原文</div>
+    <div>來源:香港電台 RTHK、政府新聞網(公開 RSS)· 天氣:香港天文台 · 時間為香港時間 · 點按標題前往原文</div>
   </footer>
 </div>
+<button id="top" title="返回頂部" aria-label="返回頂部">↑</button>
 
 <script>
   const HK = "Asia/Hong_Kong";
   const MON_EN = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  let LAST = null;        // 最近一次資料
+  let AUTO = null;        // 自動更新計時器
 
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
-  function fmtTime(dateStr){
+
+  function absTime(dateStr){
     const d=new Date(dateStr); if(isNaN(d)) return "";
-    const today=new Intl.DateTimeFormat("en-CA",{timeZone:HK}).format(new Date());
-    const that =new Intl.DateTimeFormat("en-CA",{timeZone:HK}).format(d);
-    const t=new Intl.DateTimeFormat("zh-HK",{timeZone:HK,hour:"2-digit",minute:"2-digit",hour12:false}).format(d);
-    if(today===that) return t;
-    const md=new Intl.DateTimeFormat("zh-HK",{timeZone:HK,month:"numeric",day:"numeric"}).format(d);
-    return `${md} ${t}`;
+    return new Intl.DateTimeFormat("zh-HK",{timeZone:HK,month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).format(d);
   }
+  function relTime(dateStr){
+    const d=new Date(dateStr); if(isNaN(d)) return "";
+    const diff=(Date.now()-d.getTime())/1000;
+    if(diff<0) return "啱啱";
+    if(diff<60) return "啱啱";
+    if(diff<3600) return Math.floor(diff/60)+" 分鐘前";
+    if(diff<86400) return Math.floor(diff/3600)+" 小時前";
+    const days=Math.floor(diff/86400);
+    if(days<=2) return days+" 日前";
+    return absTime(dateStr);
+  }
+
   function paintDate(){
     const p=new Intl.DateTimeFormat("en-CA",{timeZone:HK,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
     const g=t=>p.find(x=>x.type===t)?.value;
@@ -133,31 +233,77 @@
     document.getElementById("dateCn").textContent=`${g("year")}年${parseInt(g("month"))}月${parseInt(g("day"))}日`;
   }
 
+  function paintWeather(w){
+    const el=document.getElementById("wx");
+    if(!w||w.temp==null){ el.textContent=""; return; }
+    const hum=w.humidity!=null?` · 濕度 ${w.humidity}%`:"";
+    const desc=w.desc?` ${w.desc}`:"";
+    el.innerHTML=`${w.emoji||""} <b>${w.temp}°C</b>${esc(desc)}${hum}`;
+  }
+
+  // 主題切換
+  function effectiveTheme(){
+    const t=document.documentElement.dataset.theme;
+    if(t) return t;
+    return matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+  }
+  function paintThemeBtn(){ document.getElementById("themeBtn").textContent = effectiveTheme()==="dark"?"☀️":"🌙"; }
+  function toggleTheme(){
+    const next = effectiveTheme()==="dark"?"light":"dark";
+    document.documentElement.dataset.theme=next;
+    try{ localStorage.setItem("theme",next); }catch(e){}
+    paintThemeBtn();
+  }
+
+  function skeleton(){
+    let cols="";
+    for(let i=0;i<6;i++){
+      cols+=`<section class="section"><div class="head"><div class="sk sk-line" style="width:40%"></div></div>
+        <div class="sk sk-line" style="width:90%"></div><div class="sk sk-line" style="width:70%"></div>
+        <div class="sk sk-line" style="width:85%"></div><div class="sk sk-line" style="width:60%"></div></section>`;
+    }
+    document.getElementById("content").innerHTML=`
+      <div class="lead"><div class="sk sk-line" style="width:30%;height:11px"></div>
+        <div class="sk sk-line" style="width:80%;height:30px;margin-top:14px"></div>
+        <div class="sk sk-line" style="width:55%;height:16px"></div></div>
+      <div class="sections">${cols}</div>`;
+  }
+
   function render(data){
+    LAST=data;
+    paintWeather(data.weather);
     const feeds=data.feeds||[];
+
+    // 分類導航
+    const nav=document.getElementById("nav");
+    nav.innerHTML = feeds.map((f,i)=>`<a href="#sec-${i}">${esc(f.cat)}</a>`).join("");
+    nav.hidden=false;
+
+    // 頭條
     const leadFeed=feeds.find(f=>f.lead && f.items.length);
     const lead=leadFeed && leadFeed.items[0];
     let leadHtml="";
     if(lead){
       const snip=lead.desc ? (lead.desc.length>96?lead.desc.slice(0,96)+"…":lead.desc):"";
       leadHtml=`
-        <section class="lead">
+        <section class="lead" id="lead">
           <span class="eyebrow">頭條 · LEAD</span>
           <h2><a href="${esc(lead.link)}" target="_blank" rel="noopener">${esc(lead.title)}</a></h2>
           ${snip?`<div class="body">${esc(snip)}</div>`:""}
-          <div class="src">來源 · <b>${esc(leadFeed.outlet)}</b> · ${esc(fmtTime(lead.pub))}</div>
+          <div class="src">來源 · <b>${esc(leadFeed.outlet)}</b> · <span class="time" data-pub="${esc(lead.pub)}">${esc(relTime(lead.pub))}</span></div>
         </section>`;
     }
-    const cols=feeds.map(f=>{
+
+    const cols=feeds.map((f,i)=>{
       const list=f.items.slice(f.lead?1:0);
       const rows=list.length ? list.map(it=>`
         <a class="row" href="${esc(it.link)}" target="_blank" rel="noopener">
           <span class="t">${esc(it.title)}</span>
-          <span class="time">${esc(fmtTime(it.pub))}</span>
+          <span class="time" data-pub="${esc(it.pub)}" title="${esc(absTime(it.pub))}">${esc(relTime(it.pub))}</span>
         </a>`).join("")
         : `<div class="empty">${f.ok?"暫無新聞":"暫時無法載入"}</div>`;
       return `
-        <section class="section">
+        <section class="section" id="sec-${i}">
           <div class="head">
             <span class="outlet">${esc(f.outlet)}</span>
             <h3>${esc(f.cat)}<span class="n">${list.length||""}</span></h3>
@@ -165,36 +311,80 @@
           ${rows}
         </section>`;
     }).join("");
+
     document.getElementById("content").innerHTML=leadHtml+`<div class="sections">${cols}</div>`;
+    applyFilter();
   }
 
-  async function load(){
+  function applyFilter(){
+    const q=(document.getElementById("q").value||"").trim().toLowerCase();
+    document.querySelectorAll(".section").forEach(sec=>{
+      let shown=0;
+      sec.querySelectorAll(".row").forEach(row=>{
+        const t=(row.querySelector(".t")?.textContent||"").toLowerCase();
+        const hit=!q||t.includes(q);
+        row.hidden=!hit; if(hit) shown++;
+      });
+      const hasEmpty=sec.querySelector(".empty");
+      sec.hidden = q && shown===0 && !hasEmpty ? true : (q? shown===0 : false);
+      if(!q) sec.hidden=false;
+    });
+    const lead=document.getElementById("lead");
+    if(lead){
+      const lt=(lead.querySelector("h2")?.textContent||"").toLowerCase();
+      lead.hidden = q && !lt.includes(q);
+    }
+  }
+
+  function refreshRelTimes(){
+    document.querySelectorAll(".time[data-pub]").forEach(el=>{ el.textContent=relTime(el.dataset.pub); });
+  }
+
+  async function load(opts){
+    opts=opts||{};
     const btn=document.getElementById("refreshBtn");
     btn.disabled=true; btn.textContent="更新中…";
-    document.getElementById("content").innerHTML=
-      `<div class="status"><div>正在載入各大傳媒即時新聞<span class="dots"></span></div></div>`;
+    if(!opts.soft) skeleton();
     try{
       const res=await fetch("/api/news",{cache:"no-store"});
       if(!res.ok) throw new Error("HTTP "+res.status);
       const data=await res.json();
       if(data.error) throw new Error(data.error);
       render(data);
-      const upd=fmtTime(data.generatedAt);
       const failed=(data.feeds||[]).filter(f=>!f.ok).length;
-      document.getElementById("updatedAt").textContent=`更新於 ${upd}${failed?` · ${failed} 個頻道未能載入`:""}`;
+      document.getElementById("updatedAt").textContent=`更新於 ${absTime(data.generatedAt)}${failed?` · ${failed} 個頻道未能載入`:""}`;
     }catch(e){
-      document.getElementById("content").innerHTML=
-        `<div class="status"><div>暫時無法載入新聞。</div>
-         <button class="refresh" style="margin-top:18px" onclick="load()">再試一次</button></div>`;
-      document.getElementById("updatedAt").textContent="更新失敗";
+      if(!opts.soft){
+        document.getElementById("content").innerHTML=
+          `<div class="status"><div>暫時無法載入新聞。</div>
+           <button class="btn" style="margin-top:16px" onclick="load()">再試一次</button></div>`;
+        document.getElementById("updatedAt").textContent="更新失敗";
+      }
     }finally{
       btn.disabled=false; btn.textContent="重新整理";
     }
   }
 
-  document.getElementById("refreshBtn").addEventListener("click", load);
+  // 事件
+  document.getElementById("refreshBtn").addEventListener("click",()=>load());
+  document.getElementById("themeBtn").addEventListener("click",toggleTheme);
+  document.getElementById("q").addEventListener("input",applyFilter);
+  const topBtn=document.getElementById("top");
+  topBtn.addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
+  addEventListener("scroll",()=>{ topBtn.classList.toggle("show",scrollY>500); },{passive:true});
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paintThemeBtn);
+
+  // 起動
   paintDate();
+  paintThemeBtn();
   load();
+  AUTO=setInterval(()=>load({soft:true}),5*60*1000); // 每 5 分鐘自動更新
+  setInterval(refreshRelTimes,60*1000);               // 每分鐘更新「X 分鐘前」
+  addEventListener("visibilitychange",()=>{ if(!document.hidden) load({soft:true}); });
+
+  if("serviceWorker" in navigator){
+    addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+  }
 </script>
 </body>
 </html>
