@@ -7,9 +7,7 @@ const FEEDS = [
   { outlet: "RTHK 香港電台", cat: "大中華",   url: "https://rthk.hk/rthk/news/rss/c_expressnews_greaterchina.xml" },
   { outlet: "RTHK 香港電台", cat: "國際",     url: "https://rthk.hk/rthk/news/rss/c_expressnews_cinternational.xml" },
   { outlet: "RTHK 香港電台", cat: "體育",     url: "https://rthk.hk/rthk/news/rss/c_expressnews_csport.xml" },
-  { outlet: "明報",          cat: "即時港聞", url: "https://news.mingpao.com/rss/ins/s00001.xml" },
-  { outlet: "明報",          cat: "即時經濟", url: "https://news.mingpao.com/rss/ins/s00002.xml" },
-  { outlet: "明報",          cat: "即時國際", url: "https://news.mingpao.com/rss/ins/s00005.xml" },
+  { outlet: "政府新聞網",    cat: "新聞公報", url: "http://www.info.gov.hk/gia/rss/general_zh.xml" },
 ];
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
@@ -81,17 +79,3 @@ async function aggregate() {
 export default async () => {
   try {
     const data = await aggregate();
-    return new Response(JSON.stringify(data), {
-      headers: {
-        "content-type": "application/json; charset=utf-8",
-        "cache-control": "public, max-age=300",
-        "netlify-cdn-cache-control": "public, s-maxage=600, stale-while-revalidate=86400",
-      },
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: String(e) }), {
-      status: 500,
-      headers: { "content-type": "application/json; charset=utf-8" },
-    });
-  }
-};
