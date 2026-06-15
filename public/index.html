@@ -14,7 +14,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet" />
 <script>
-  // 開頁即套用主題,避免閃白
   (function(){ try{ var t=localStorage.getItem("theme"); if(t==="dark"||t==="light") document.documentElement.dataset.theme=t; }catch(e){} })();
 </script>
 <style>
@@ -87,7 +86,6 @@
   .btn:focus-visible{outline:2px solid var(--bauhinia);outline-offset:2px}
   .icon-btn{font-size:15px;padding:6px 11px}
 
-  /* 分類導航(置頂) */
   nav.cats{position:sticky;top:0;z-index:6;background:var(--paper);
     border-bottom:1px solid var(--hair);margin:0 -22px;padding:9px 22px;
     display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
@@ -131,13 +129,18 @@
   .row .time{display:block;margin-top:5px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mist)}
   .section .empty{padding:14px 0;color:var(--mist);font-family:"IBM Plex Mono",monospace;font-size:12px}
 
-  /* 骨架載入 */
+  .more{margin-top:12px;width:100%;font-family:"IBM Plex Mono",monospace;font-size:12px;
+    letter-spacing:.06em;color:var(--harbour);background:none;border:1px dashed var(--hair);
+    border-radius:6px;padding:8px;cursor:pointer;transition:.15s}
+  .more:hover{border-color:var(--harbour);background:var(--card);color:var(--bauhinia)}
+  .more:focus-visible{outline:2px solid var(--bauhinia);outline-offset:2px}
+  .more[hidden]{display:none}
+
   .sk{background:linear-gradient(90deg,var(--card) 0%,var(--hair) 50%,var(--card) 100%);
     background-size:200% 100%;animation:sh 1.3s ease-in-out infinite;border-radius:5px}
   @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .sk-line{height:13px;margin:9px 0}
 
-  /* 返回頂部 */
   #top{position:fixed;right:20px;bottom:20px;z-index:9;width:42px;height:42px;border-radius:50%;
     background:var(--ink);color:var(--paper);border:none;cursor:pointer;font-size:18px;line-height:1;
     box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
@@ -205,8 +208,8 @@
 <script>
   const HK = "Asia/Hong_Kong";
   const MON_EN = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-  let LAST = null;        // 最近一次資料
-  let AUTO = null;        // 自動更新計時器
+  const INITIAL = 5;   // 每欄預設顯示條數
+  const STEP = 6;      // 每次「更多」展開條數
 
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
 
@@ -217,7 +220,6 @@
   function relTime(dateStr){
     const d=new Date(dateStr); if(isNaN(d)) return "";
     const diff=(Date.now()-d.getTime())/1000;
-    if(diff<0) return "啱啱";
     if(diff<60) return "啱啱";
     if(diff<3600) return Math.floor(diff/60)+" 分鐘前";
     if(diff<86400) return Math.floor(diff/3600)+" 小時前";
@@ -241,7 +243,6 @@
     el.innerHTML=`${w.emoji||""} <b>${w.temp}°C</b>${esc(desc)}${hum}`;
   }
 
-  // 主題切換
   function effectiveTheme(){
     const t=document.documentElement.dataset.theme;
     if(t) return t;
@@ -270,16 +271,13 @@
   }
 
   function render(data){
-    LAST=data;
     paintWeather(data.weather);
     const feeds=data.feeds||[];
 
-    // 分類導航
     const nav=document.getElementById("nav");
     nav.innerHTML = feeds.map((f,i)=>`<a href="#sec-${i}">${esc(f.cat)}</a>`).join("");
     nav.hidden=false;
 
-    // 頭條
     const leadFeed=feeds.find(f=>f.lead && f.items.length);
     const lead=leadFeed && leadFeed.items[0];
     let leadHtml="";
@@ -296,44 +294,51 @@
 
     const cols=feeds.map((f,i)=>{
       const list=f.items.slice(f.lead?1:0);
-      const rows=list.length ? list.map(it=>`
+      const rowsHtml = list.length ? list.map(it=>`
         <a class="row" href="${esc(it.link)}" target="_blank" rel="noopener">
           <span class="t">${esc(it.title)}</span>
           <span class="time" data-pub="${esc(it.pub)}" title="${esc(absTime(it.pub))}">${esc(relTime(it.pub))}</span>
         </a>`).join("")
         : `<div class="empty">${f.ok?"暫無新聞":"暫時無法載入"}</div>`;
+      const moreBtn = list.length>INITIAL ? `<button class="more" type="button">更多 ▾</button>` : "";
       return `
-        <section class="section" id="sec-${i}">
+        <section class="section" id="sec-${i}" data-shown="${INITIAL}">
           <div class="head">
             <span class="outlet">${esc(f.outlet)}</span>
             <h3>${esc(f.cat)}<span class="n">${list.length||""}</span></h3>
           </div>
-          ${rows}
+          ${rowsHtml}
+          ${moreBtn}
         </section>`;
     }).join("");
 
     document.getElementById("content").innerHTML=leadHtml+`<div class="sections">${cols}</div>`;
-    applyFilter();
+    applyView();
   }
 
-  function applyFilter(){
+  // 同時處理「搜尋」同「更多展開」兩種顯示狀態
+  function applyView(){
     const q=(document.getElementById("q").value||"").trim().toLowerCase();
     document.querySelectorAll(".section").forEach(sec=>{
-      let shown=0;
-      sec.querySelectorAll(".row").forEach(row=>{
-        const t=(row.querySelector(".t")?.textContent||"").toLowerCase();
-        const hit=!q||t.includes(q);
-        row.hidden=!hit; if(hit) shown++;
-      });
-      const hasEmpty=sec.querySelector(".empty");
-      sec.hidden = q && shown===0 && !hasEmpty ? true : (q? shown===0 : false);
-      if(!q) sec.hidden=false;
+      const rows=[...sec.querySelectorAll(".row")];
+      const more=sec.querySelector(".more");
+      if(q){
+        let shown=0;
+        rows.forEach(r=>{
+          const t=(r.querySelector(".t")?.textContent||"").toLowerCase();
+          const hit=t.includes(q); r.hidden=!hit; if(hit) shown++;
+        });
+        if(more) more.hidden=true;
+        sec.hidden = shown===0 && !sec.querySelector(".empty");
+      }else{
+        const limit=parseInt(sec.dataset.shown||String(INITIAL),10);
+        rows.forEach((r,idx)=>{ r.hidden = idx>=limit; });
+        if(more) more.hidden = rows.length<=limit;
+        sec.hidden=false;
+      }
     });
     const lead=document.getElementById("lead");
-    if(lead){
-      const lt=(lead.querySelector("h2")?.textContent||"").toLowerCase();
-      lead.hidden = q && !lt.includes(q);
-    }
+    if(lead){ const lt=(lead.querySelector("h2")?.textContent||"").toLowerCase(); lead.hidden = q && !lt.includes(q); }
   }
 
   function refreshRelTimes(){
@@ -365,21 +370,30 @@
     }
   }
 
-  // 事件
   document.getElementById("refreshBtn").addEventListener("click",()=>load());
   document.getElementById("themeBtn").addEventListener("click",toggleTheme);
-  document.getElementById("q").addEventListener("input",applyFilter);
+  document.getElementById("q").addEventListener("input",applyView);
+
+  // 「更多」展開(事件委派,因為內容會重繪)
+  document.getElementById("content").addEventListener("click",(e)=>{
+    const b=e.target.closest(".more"); if(!b) return;
+    const sec=b.closest(".section"); if(!sec) return;
+    const total=sec.querySelectorAll(".row").length;
+    const cur=parseInt(sec.dataset.shown||String(INITIAL),10);
+    sec.dataset.shown=Math.min(total,cur+STEP);
+    applyView();
+  });
+
   const topBtn=document.getElementById("top");
   topBtn.addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
   addEventListener("scroll",()=>{ topBtn.classList.toggle("show",scrollY>500); },{passive:true});
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paintThemeBtn);
 
-  // 起動
   paintDate();
   paintThemeBtn();
   load();
-  AUTO=setInterval(()=>load({soft:true}),5*60*1000); // 每 5 分鐘自動更新
-  setInterval(refreshRelTimes,60*1000);               // 每分鐘更新「X 分鐘前」
+  setInterval(()=>load({soft:true}),5*60*1000);
+  setInterval(refreshRelTimes,60*1000);
   addEventListener("visibilitychange",()=>{ if(!document.hidden) load({soft:true}); });
 
   if("serviceWorker" in navigator){
