@@ -39,7 +39,7 @@ function parseRss(xml) {
       title,
       link: pick(b, "link"),
       pub: pick(b, "pubDate"),
-      desc: stripTags(pick(b, "description")),
+      desc: stripTags(pick(b, "description")).slice(0, 160),
     });
   }
   return out;
@@ -56,7 +56,7 @@ async function fetchFeed(feed) {
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const xml = await res.text();
-    const items = parseRss(xml).slice(0, feed.lead ? 8 : 7);
+    const items = parseRss(xml).slice(0, 25);
     if (!items.length) throw new Error("empty");
     return items;
   } finally {
