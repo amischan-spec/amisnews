@@ -1,4 +1,4 @@
-// 自己包晒:抓取 + 解析所有 RSS,然後回傳 JSON。唔需要 import 其他檔。
+// 自己包晒:抓取 + 解析所有 RSS,並加埋香港天文台天氣,回傳 JSON。
 // 想加減傳媒/頻道,改下面 FEEDS 即可。
 
 const FEEDS = [
@@ -64,16 +64,53 @@ async function fetchFeed(feed) {
   }
 }
 
+// 香港天文台「本港地區天氣報告」
+const HKO = "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc";
+const ICON = {
+  50:["☀️","天晴"],51:["🌤️","部分時間有陽光"],52:["🌤️","短暫時間有陽光"],
+  53:["🌦️","短暫陽光有驟雨"],54:["🌦️","短暫陽光有驟雨"],
+  60:["☁️","多雲"],61:["☁️","密雲"],62:["🌧️","微雨"],63:["🌧️","雨"],64:["🌧️","大雨"],65:["⛈️","雷暴"],
+  70:["🌙","天色良好"],71:["🌙","天色良好"],72:["🌙","天色良好"],73:["🌙","天色良好"],74:["🌙","天色良好"],
+  75:["🌙","天色良好"],76:["🌥️","大致多雲"],77:["🌙","天色大致良好"],
+  80:["💨","大風"],81:["🌬️","乾燥"],82:["💧","潮濕"],83:["🌫️","霧"],84:["🌫️","薄霧"],85:["🌁","煙霞"],
+  90:["🥵","熱"],91:["🌡️","暖"],92:["🍃","涼"],93:["🥶","冷"]
+};
+
+async function fetchWeather() {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch(HKO, { headers: { "User-Agent": UA }, signal: ctrl.signal });
+    if (!res.ok) return null;
+    const j = await res.json();
+    const td = (j.temperature && j.temperature.data) || [];
+    const hko = td.find(x => x.place === "香港天文台") || td[0];
+    const temp = hko ? Math.round(hko.value) : null;
+    const hum = (j.humidity && j.humidity.data && j.humidity.data[0]) ? j.humidity.data[0].value : null;
+    const code = (j.icon && j.icon[0]) || null;
+    const ic = ICON[code] || ["", ""];
+    if (temp == null) return null;
+    return { temp, humidity: hum, emoji: ic[0], desc: ic[1] };
+  } catch (e) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function aggregate() {
-  const feeds = await Promise.all(FEEDS.map(async (f) => {
-    try {
-      const items = await fetchFeed(f);
-      return { outlet: f.outlet, cat: f.cat, lead: !!f.lead, ok: true, items };
-    } catch (e) {
-      return { outlet: f.outlet, cat: f.cat, lead: !!f.lead, ok: false, items: [] };
-    }
-  }));
-  return { generatedAt: new Date().toISOString(), feeds };
+  const [feeds, weather] = await Promise.all([
+    Promise.all(FEEDS.map(async (f) => {
+      try {
+        const items = await fetchFeed(f);
+        return { outlet: f.outlet, cat: f.cat, lead: !!f.lead, ok: true, items };
+      } catch (e) {
+        return { outlet: f.outlet, cat: f.cat, lead: !!f.lead, ok: false, items: [] };
+      }
+    })),
+    fetchWeather(),
+  ]);
+  return { generatedAt: new Date().toISOString(), weather, feeds };
 }
 
 export default async () => {
