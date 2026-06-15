@@ -1,7 +1,7 @@
-// 伺服器端抓取 + 解析所有 RSS feed。
-// 想加減傳媒/頻道,改下面 FEEDS 即可(每個 feed 一定要係公開 RSS 的 .xml 網址)。
+// 自己包晒:抓取 + 解析所有 RSS,然後回傳 JSON。唔需要 import 其他檔。
+// 想加減傳媒/頻道,改下面 FEEDS 即可。
 
-export const FEEDS = [
+const FEEDS = [
   { outlet: "RTHK 香港電台", cat: "本地",     url: "https://rthk.hk/rthk/news/rss/c_expressnews_clocal.xml", lead: true },
   { outlet: "RTHK 香港電台", cat: "財經",     url: "https://rthk.hk/rthk/news/rss/c_expressnews_cfinance.xml" },
   { outlet: "RTHK 香港電台", cat: "大中華",   url: "https://rthk.hk/rthk/news/rss/c_expressnews_greaterchina.xml" },
@@ -25,7 +25,7 @@ function decode(s) {
 function stripTags(s) { return s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); }
 
 function pick(block, tag) {
-  const m = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i").exec(block);
+  const m = new RegExp("<" + tag + "[^>]*>([\\s\\S]*?)<\\/" + tag + ">", "i").exec(block);
   return m ? decode(stripCdata(m[1])).trim() : "";
 }
 
@@ -48,19 +48,25 @@ function parseRss(xml) {
 }
 
 async function fetchFeed(feed) {
-  const res = await fetch(feed.url, {
-    headers: { "User-Agent": UA, "Accept": "application/rss+xml, application/xml, text/xml, */*" },
-    redirect: "follow",
-    signal: AbortSignal.timeout(9000),
-  });
-  if (!res.ok) throw new Error("HTTP " + res.status);
-  const xml = await res.text();
-  const items = parseRss(xml).slice(0, feed.lead ? 8 : 7);
-  if (!items.length) throw new Error("empty");
-  return items;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 9000);
+  try {
+    const res = await fetch(feed.url, {
+      headers: { "User-Agent": UA, "Accept": "application/rss+xml, application/xml, text/xml, */*" },
+      redirect: "follow",
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const xml = await res.text();
+    const items = parseRss(xml).slice(0, feed.lead ? 8 : 7);
+    if (!items.length) throw new Error("empty");
+    return items;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
-export async function aggregate() {
+async function aggregate() {
   const feeds = await Promise.all(FEEDS.map(async (f) => {
     try {
       const items = await fetchFeed(f);
@@ -71,3 +77,21 @@ export async function aggregate() {
   }));
   return { generatedAt: new Date().toISOString(), feeds };
 }
+
+export default async () => {
+  try {
+    const data = await aggregate();
+    return new Response(JSON.stringify(data), {
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "public, max-age=300",
+        "netlify-cdn-cache-control": "public, s-maxage=600, stale-while-revalidate=86400",
+      },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { "content-type": "application/json; charset=utf-8" },
+    });
+  }
+};
